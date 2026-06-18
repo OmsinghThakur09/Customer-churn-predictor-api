@@ -7,18 +7,18 @@ import joblib
 import shap
 from pathlib import Path
 
-
 # paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = BASE_DIR / "models"
 DATA_DIR = BASE_DIR / "data" / "processed"
+
 
 # print(MODELS_DIR)
 
 
 # loading models and metadata
 def load_artifacts() -> tuple:
-    preprocessor = joblib.load(MODELS_DIR/"preprocessor.pkl")
+    preprocessor = joblib.load(MODELS_DIR / "preprocessor.pkl")
     model = joblib.load(MODELS_DIR / "churn_model.pkl")
     shap_explainer = joblib.load(MODELS_DIR / "shap_explainer.pkl")
 
@@ -42,12 +42,11 @@ def get_risk_level(probability: float, threshold: float) -> str:
     :param threshold:
     :return:
     """
-    _, _, _, metadata = load_artifacts()
-    if probability >= metadata["critical_boundary"]:  # top 5%
+    if probability >= 0.85:
         return "CRITICAL"
-    elif probability >= metadata["high_boundary"]:  # top 20%
+    elif 0.84 >= probability >= 0.70:
         return "HIGH"
-    elif probability >= metadata["medium_boundary"]:  # top 40%
+    elif 0.69 >= probability >= 0.49:
         return "MEDIUM"
     else:
         return "LOW"
@@ -63,7 +62,7 @@ def preprocess_input(customer_dict: dict, preprocessor) -> np.ndarray:
 # predict probability of churn for input customer
 def predict_churn(processed_input: np.ndarray,
                   model,
-                  threshold : float) -> tuple:
+                  threshold: float) -> tuple:
     proba_array = model.predict_proba(processed_input)
 
     probability = float(proba_array[0][1])
@@ -79,7 +78,6 @@ def get_shap_factors(
         feature_names: list,
         top_n: int = 3
 ) -> list:
-
     shap_values = shap_explainer.shap_values(processed_input)
 
     if isinstance(shap_values, list):
@@ -128,7 +126,7 @@ def run_prediction(customer_dict: dict) -> dict:
     feature_names = metadata.get("feature_names", [])
     # backup
     if not feature_names:
-        feature_names = pd.read_csv(DATA_DIR/"feature_names.csv").iloc[:,0].tolist()
+        feature_names = pd.read_csv(DATA_DIR / "feature_names.csv").iloc[:, 0].tolist()
 
     # step 2
     processed = preprocess_input(customer_dict, preprocessor)
