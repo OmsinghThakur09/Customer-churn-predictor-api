@@ -151,3 +151,108 @@ def _fallback_explanation(prediction: dict) -> str:
         f"See top_factors for the complete breakdown."
     )
 
+
+# health endpoint
+@app.get("/health", tags=["Status"])
+async def health():
+    """
+    Standard health check. Every production API has this.
+    Render, Kubernetes, and load balancers ping this to check if the app is alive.
+    :return: health stat
+    """
+    return {
+        "status": "healthy",
+        "grok_enabled": grok_client is not None,
+        "version": "1.0.0",
+    }
+
+
+# predict endpoint
+@app.post("/predict", response_model=PredictionResponse, tags=["Prediction"])
+async def predict_single(customer: CustomerInput):
+    """
+    predict churn probability for one customer.
+    :param customer: customer dict
+    :return: probability, risk level, top 3 SHAP factors,
+    business impact framing, recommended action, and
+    a Grok-generated plain-English explanation.
+    """
+    try:
+        customer_dict = customer.model_dump()  # Pydantic → plain Python dict
+
+        result = run_prediction(customer_dict)
+
+        result['explanation'] = get_grok_explanation(result, customer_dict)
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Prediction error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/predict/whatif", response_model=WhatIfResponse, tags=["Prediction"])
+async def predict_whatif(request: WhatIfInput):
+    """
+    What-If Simulator: quantify the ROI(return of investment) of a retention intervention.
+
+    Scenario example:
+    'If I upgrade this customer from Month-to-month to a Two-year contract
+     AND add Online Security, how much does churn risk drop?
+     What is the annual revenue I'm protecting?'
+    A CRM can call this before every retention agent call.
+    :param request:og customer dict + proposed changes
+    :return:post changes probability
+    """
+    try:
+        # current state
+        current_dict = request.customer.model_dump()
+        current_result = run_prediction(current_dict)
+        current_result['explanation'] = get_grok_explanation(current_result, current_dict)
+
+        # proposed state
+        proposed_dict = current_dict.copy()
+        proposed_dict.update(request.proposed_change)
+        proposed_result = run_prediction(proposed_dict)
+        proposed_result['explanation'] = get_grok_explanation(proposed_result, proposed_dict)
+
+        # Business value calculation
+        prob_before = current_result['churn_probability']
+        prob_after = proposed_result['churn_probability']
+        risk_reduction_pct = (prob_before - prob_after) * 100
+
+        monthly_charges = current_dict.get('MonthlyCharges', 0)
+        retained_prob = max(prob_before - prob_after, 0)
+        annual_value = retained_prob * monthly_charges * 12
+
+        if risk_reduction_pct > 0:
+            intervention_value = (
+                f"Churn risk drops by {risk_reduction_pct:.1f} percentage points. "
+                f"Expected annual revenue protected: ₹{annual_value:,.0f} "
+                f"(Δ{retained_prob:.1%} × ₹{monthly_charges}/month × 12 months)."
+            )
+            recommendation = (
+                f"✅ Recommend this intervention. "
+                f"At scale across 100 similar customers: "
+                f"₹{annual_value * 100:,.0f}/year in revenue protected."
+            )
+        else:
+            intervention_value = (
+                f"This change increases churn risk by {abs(risk_reduction_pct):.1f}pp. "
+                "Not recommended."
+            )
+            recommendation = (
+                "❌ This intervention worsens churn risk. "
+                "Try a different change."
+            )
+        return WhatIfResponse(
+            current=PredictionResponse(**current_result),
+            proposed=PredictionResponse(**proposed_result),
+            risk_reduction_pct=round(risk_reduction_pct, 2),
+            intervention_value=intervention_value,
+            recommendation=recommendation,
+        )
+
+    except Exception as e:
+        logger.error(f"What-If error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
