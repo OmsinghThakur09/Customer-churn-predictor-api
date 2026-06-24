@@ -1,4 +1,4 @@
-# schemas.py
+# api/schemas.py
 
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
