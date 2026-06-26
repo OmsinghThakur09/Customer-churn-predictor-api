@@ -1,7 +1,7 @@
 # api/schemas.py
 
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 """
 BaseModel is the parent class for all request/response shapes. 
@@ -12,6 +12,7 @@ Clients see exactly what JSON to send without reading any docs."""
 
 # CustomerInput(expected format and datatypes of customer input)
 class CustomerInput(BaseModel):
+    customer_id: Optional[str] = Field(default=None, description="Optional ID to trace results")
     gender: str
     SeniorCitizen: int
     Partner: str
@@ -63,6 +64,7 @@ class PredictionResponse(BaseModel):
     explanation: str
 
 
+# what-if endpoint
 class WhatIfInput(BaseModel):
     customer: CustomerInput
     proposed_change: Dict[str, Any] = Field(
@@ -80,3 +82,32 @@ class WhatIfResponse(BaseModel):
     risk_reduction_pct: float
     intervention_value: str
     recommendation: str
+
+
+# Batch endpoint
+class BatchInput(BaseModel):
+    customers: List[CustomerInput] = Field(min_length=1, max_length=100)
+    include_explanations: bool = Field(default=False)
+
+
+class BatchSummary(BaseModel):
+    """
+    Executive summary across all predictions.
+    This is what goes on the dashboard, not the individual rows.
+    """
+    total_customers: int
+    critical_risk_count: int
+    high_risk_count: int
+    medium_risk_count: int
+    low_risk_count: int
+    average_churn_probability: float
+    total_annual_revenue_at_risk: float
+    top_churn_drivers: List[str]
+
+
+class BatchPredictionResponse(BaseModel):
+    """
+    Full batch response: individual predictions + executive summary
+    """
+    predictions: List[PredictionResponse]
+    summary: BatchSummary
