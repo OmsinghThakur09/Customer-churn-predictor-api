@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import joblib
 from pathlib import Path
+from src.preprocess import load_preprocessor, prepare_dataframe
 
 # paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,7 +18,7 @@ DATA_DIR = BASE_DIR / "data" / "processed"
 
 # loading models and metadata
 def load_artifacts() -> tuple:
-    preprocessor = joblib.load(MODELS_DIR / "preprocessor.pkl")
+    preprocessor = load_preprocessor(str(MODELS_DIR / "preprocessor.pkl"))
     model = joblib.load(MODELS_DIR / "churn_model.pkl")
     shap_explainer = joblib.load(MODELS_DIR / "shap_explainer.pkl")
 
@@ -53,7 +54,7 @@ def get_risk_level(probability: float, threshold: float) -> str:
 
 # preprocess the input customer dict
 def preprocess_input(customer_dict: dict, preprocessor) -> np.ndarray:
-    df = pd.DataFrame([customer_dict])
+    df = prepare_dataframe(pd.DataFrame([customer_dict]))
     processed = preprocessor.transform(df)
     return processed
 
@@ -145,7 +146,7 @@ def run_prediction(customer_dict: dict) -> dict:
         "top_factors": top_factors,
         "business_impact": calculate_business_impact(probability, monthly_charge),
         "recommended_action": get_recommended_action(risk_level),
-        "explanation": "← LLM API fills this"
+        "explanation": None  # ← LLM API fills this
     }
 
 
@@ -154,17 +155,17 @@ if __name__ == "__main__":
     TEST_CUSTOMERS = [
         {
             "label": "Customer A — Expected: CRITICAL",
-            "data": {
-                "gender": "Male", "SeniorCitizen": 0, "Partner": "No",
-                "Dependents": "No", "tenure": 1, "PhoneService": "Yes",
-                "MultipleLines": "No", "InternetService": "Fiber optic",
-                "OnlineSecurity": "No", "OnlineBackup": "No",
-                "DeviceProtection": "No", "TechSupport": "No",
-                "StreamingTV": "No", "StreamingMovies": "No",
-                "Contract": "Month-to-month", "PaperlessBilling": "Yes",
-                "PaymentMethod": "Electronic check",
-                "MonthlyCharges": 95.0, "TotalCharges": 95.0
-            }
+            "data": {"customer_id": 1,
+                     "gender": "Male", "SeniorCitizen": 0, "Partner": "No",
+                     "Dependents": "No", "tenure": 1, "PhoneService": "Yes",
+                     "MultipleLines": "No", "InternetService": "Fiber optic",
+                     "OnlineSecurity": "No", "OnlineBackup": "No",
+                     "DeviceProtection": "No", "TechSupport": "No",
+                     "StreamingTV": "No", "StreamingMovies": "No",
+                     "Contract": "Month-to-month", "PaperlessBilling": "Yes",
+                     "PaymentMethod": "Electronic check",
+                     "MonthlyCharges": 95.0, "TotalCharges": 95.0
+                     }
         },
         {
             "label": "Customer B — Expected: HIGH",
@@ -196,17 +197,17 @@ if __name__ == "__main__":
         },
         {
             "label": "Customer D — Expected: LOW",
-            "data": {
-                "gender": "Female", "SeniorCitizen": 0, "Partner": "Yes",
-                "Dependents": "Yes", "tenure": 60, "PhoneService": "Yes",
-                "MultipleLines": "Yes", "InternetService": "DSL",
-                "OnlineSecurity": "Yes", "OnlineBackup": "Yes",
-                "DeviceProtection": "Yes", "TechSupport": "Yes",
-                "StreamingTV": "No", "StreamingMovies": "No",
-                "Contract": "Two year", "PaperlessBilling": "No",
-                "PaymentMethod": "Bank transfer (automatic)",
-                "MonthlyCharges": 45.0, "TotalCharges": 2700.0
-            }
+            "data": {"customer_id": "AD45-1",
+                     "gender": "Female", "SeniorCitizen": 0, "Partner": "Yes",
+                     "Dependents": "Yes", "tenure": 60, "PhoneService": "Yes",
+                     "MultipleLines": "Yes", "InternetService": "DSL",
+                     "OnlineSecurity": "Yes", "OnlineBackup": "Yes",
+                     "DeviceProtection": "Yes", "TechSupport": "Yes",
+                     "StreamingTV": "No", "StreamingMovies": "No",
+                     "Contract": "Two year", "PaperlessBilling": "No",
+                     "PaymentMethod": "Bank transfer (automatic)",
+                     "MonthlyCharges": 45.0, "TotalCharges": 2700.0
+                     }
         },
         {
             "label": "Customer E — Expected: LOW (loyal long-term)",
