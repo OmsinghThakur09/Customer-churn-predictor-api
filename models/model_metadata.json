@@ -29,14 +29,19 @@
     "PaymentMethod_Electronic check",
     "PaymentMethod_Mailed check"
   ],
-  "training_date": "2026-06-24T19:37:45.729738",
-  "best_threshold": 0.3697337210178375,
-  "roc_auc_test": 0.8374292800124001,
-  "recall_test": 0.7727272727272727,
-  "precision_test": 0.5381750465549349,
-  "f1_test": 0.6344676180021954,
-  "threshold": 0.3697337210178375,
-  "medium_boundary": 0.7299814209467418,
-  "high_boundary": 0.9580533125627152,
-  "critical_boundary": 0.9971099656734094
+  "training_date": "2026-07-02T18:29:16.426585",
+  "hyperparameters": {
+    "n_estimators": 400,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.9,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 3
+  },
+  "best_threshold": 0.30821889638900757,
+  "threshold": 0.30821889638900757,
+  "roc_auc_test": 0.8380932082978119,
+  "recall_test": 0.7887700534759359,
+  "precision_test": 0.5230496453900709,
+  "f1_test": 0.6289978678038379
 }
