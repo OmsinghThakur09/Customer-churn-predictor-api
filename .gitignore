@@ -60,36 +60,27 @@ ipython_config.py
 
 
 # ------------------------------------------------------------
-# 🤖  ML Models & Large Artifacts
-#     Commit small demo models (<10MB) — gitignore heavy ones
+# 🤖  ML Models & Artifacts — COMMIT these, they're small & needed for deploy
 # ------------------------------------------------------------
-models/*.pkl
-models/*.joblib
-models/*.h5
-models/*.pt
-models/*.onnx
-
-# Keep this line if you WANT to commit your demo model:
-# !models/churn_model_demo.pkl
+# (no ignore rules — churn_model.pkl, preprocessor.pkl, shap_explainer.pkl,
+#  model_metadata.json, and feature_names.csv are all tracked and required
+#  for the live API to work on Render)
 
 
 # ------------------------------------------------------------
-# 📊  Data Files
-#     Raw/processed data should NOT be in Git
-#     Use a README note or DVC for large datasets
+# 📊  Data Files — raw/processed CSVs stay local, too large / not needed live
 # ------------------------------------------------------------
-data/raw/
-data/processed/
-*.csv
-*.parquet
-*.feather
-*.h5
-*.hdf5
+data/raw/*.csv
+data/processed/*.npy
+data/processed/*.png
 
-# Allow the sample data placeholder
+# Keep folders in git without their contents
 !data/.gitkeep
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+
+# Explicitly un-ignore the one CSV your API needs at runtime
+!data/processed/feature_names.csv
 
 
 # ------------------------------------------------------------
