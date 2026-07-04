@@ -89,6 +89,42 @@ class BatchInput(BaseModel):
     customers: List[CustomerInput] = Field(min_length=1, max_length=100)
     include_explanations: bool = Field(default=False)
 
+    class Config:
+        json_schema_extra = {
+            "example": {
+              "include_explanations": False,
+              "customers": [
+                {
+                  "customer_id": "CUST_001",
+                  "gender": "Male", "SeniorCitizen": 0, "Partner": "No", "Dependents": "No",
+                  "tenure": 3, "PhoneService": "Yes", "MultipleLines": "No",
+                  "InternetService": "Fiber optic", "OnlineSecurity": "No", "OnlineBackup": "No",
+                  "DeviceProtection": "No", "TechSupport": "No", "StreamingTV": "Yes",
+                  "StreamingMovies": "Yes", "Contract": "Month-to-month", "PaperlessBilling": "Yes",
+                  "PaymentMethod": "Electronic check", "MonthlyCharges": 95.5, "TotalCharges": 286.5
+                },
+                {
+                  "customer_id": "CUST_002",
+                  "gender": "Female", "SeniorCitizen": 0, "Partner": "Yes", "Dependents": "Yes",
+                  "tenure": 60, "PhoneService": "Yes", "MultipleLines": "Yes",
+                  "InternetService": "DSL", "OnlineSecurity": "Yes", "OnlineBackup": "Yes",
+                  "DeviceProtection": "Yes", "TechSupport": "Yes", "StreamingTV": "No",
+                  "StreamingMovies": "No", "Contract": "Two year", "PaperlessBilling": "No",
+                  "PaymentMethod": "Bank transfer (automatic)", "MonthlyCharges": 45.0, "TotalCharges": 2700.0
+                },
+                {
+                  "customer_id": "CUST_003",
+                  "gender": "Male", "SeniorCitizen": 1, "Partner": "No", "Dependents": "No",
+                  "tenure": 8, "PhoneService": "Yes", "MultipleLines": "No",
+                  "InternetService": "Fiber optic", "OnlineSecurity": "No", "OnlineBackup": "No",
+                  "DeviceProtection": "No", "TechSupport": "No", "StreamingTV": "No",
+                  "StreamingMovies": "No", "Contract": "Month-to-month", "PaperlessBilling": "Yes",
+                  "PaymentMethod": "Electronic check", "MonthlyCharges": 70.35, "TotalCharges": 562.8
+                }
+              ]
+            }
+        }
+
 
 class BatchSummary(BaseModel):
     """
