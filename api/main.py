@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s:  %(message)s")
 logger = logging.getLogger(__name__)
 
 # Global Grok client — initialized once at startup, reused on every request
-groq_client = Groq()
+groq_client = None
 
 
 # API lifespan
