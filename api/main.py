@@ -54,15 +54,15 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Customer Churn Predictor API",
     description="""
-    ## Predict customer churn with XGBoost + SHAP explainability + Groq NL explanations
+    Predict customer churn with XGBoost + SHAP explainability + Groq NL explanations
     
-    ### Endpoints
-    - **POST /predict** — Single customer risk score with explanation
-    - **POST /predict/whatif** — Simulate retention interventions
-    - **POST /predict/batch** — Bulk score up to 100 customers
-    - **GET /health** — Service liveness check
+    Endpoints
+    - POST /predict** — Single customer risk score with explanation
+    - POST /predict/whatif** — Simulate retention interventions
+    - POST /predict/batch** — Bulk score up to 100 customers
+    - GET /health** — Service liveness check
     
-    ### Differentiators
+    Differentiators
     - SHAP-based explainability (not a black box)
     - Business-framed output (revenue at risk, not just accuracy)
     - What-If simulator for retention strategy testing
