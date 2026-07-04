@@ -57,10 +57,10 @@ app = FastAPI(
     Predict customer churn with XGBoost + SHAP explainability + Groq NL explanations
     
     Endpoints
-    - POST /predict** — Single customer risk score with explanation
-    - POST /predict/whatif** — Simulate retention interventions
-    - POST /predict/batch** — Bulk score up to 100 customers
-    - GET /health** — Service liveness check
+    - POST /predict — Single customer risk score with explanation
+    - POST /predict/whatif — Simulate retention interventions
+    - POST /predict/batch — Bulk score up to 100 customers
+    - GET /health — Service liveness check
     
     Differentiators
     - SHAP-based explainability (not a black box)
