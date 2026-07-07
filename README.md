@@ -3,6 +3,7 @@
 **Not a churn-probability toy — a decision-support system for retention teams.**
 
 Predicts which customers are about to cancel, explains *why* in plain English, quantifies the ROI of specific retention offers before anyone picks up the phone, and scores an entire customer base in one API call.
+https://customer-churn-predictor-hju5.onrender.com/docs
 
 Built by **Om Sanjaysingh Bais**
 
